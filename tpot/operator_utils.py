@@ -22,7 +22,7 @@ You should have received a copy of the GNU Lesser General Public
 License along with TPOT. If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+import cupy as cp
 import numpy as np
 from sklearn.base import BaseEstimator, is_classifier, is_regressor
 from sklearn.gaussian_process.kernels import Kernel
@@ -254,6 +254,7 @@ def TPOTOperatorClassFactory(opsourse, opdict, BaseClass=Operator, ArgBaseClass=
 
             """
             return ([np.ndarray] + arg_types, np.ndarray) # (input types, return types)
+            return ([cp.ndarray] + arg_types, cp.ndarray) # (input types, return types)
 
         class_profile['parameter_types'] = parameter_types
 

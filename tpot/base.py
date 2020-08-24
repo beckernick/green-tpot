@@ -24,6 +24,7 @@ License along with TPOT. If not, see <http://www.gnu.org/licenses/>.
 """
 
 from __future__ import print_function
+import cupy as cp
 import random
 import inspect
 import warnings
@@ -398,7 +399,8 @@ class TPOTBase(BaseEstimator):
             random.seed(self.random_state)
             np.random.seed(self.random_state)
 
-        self._pset = gp.PrimitiveSetTyped('MAIN', [np.ndarray], Output_Array)
+#         self._pset = gp.PrimitiveSetTyped('MAIN', [np.ndarray], Output_Array)
+        self._pset = gp.PrimitiveSetTyped('MAIN', [cp.ndarray], Output_Array)
         self._pset.renameArguments(ARG0='input_matrix')
         self._add_operators()
 
@@ -411,7 +413,8 @@ class TPOTBase(BaseEstimator):
         ret_types = []
         self.op_list = []
         if self.template == None: # default pipeline structure
-            step_in_type = np.ndarray
+#             step_in_type = np.ndarray
+            step_in_type = cp.ndarray
             step_ret_type = Output_Array
             for operator in self.operators:
                 arg_types =  operator.parameter_types()[0][1:]
@@ -433,7 +436,8 @@ class TPOTBase(BaseEstimator):
                 if idx:
                     step_in_type = ret_types[-1]
                 else:
-                    step_in_type = np.ndarray
+#                     step_in_type = np.ndarray
+                    step_in_type = cp.ndarray
                 if step != 'CombineDFs':
                     if idx < len(self._template_comp) - 1:
                         # create an empty for returning class for strongly-type GP
@@ -464,7 +468,8 @@ class TPOTBase(BaseEstimator):
                     p_types = ([step_in_type] + arg_types, step_ret_type)
                     self._pset.addPrimitive(operator, *p_types)
                     self._import_hash_and_add_terminals(operator, arg_types)
-        self.ret_types = [np.ndarray, Output_Array] + ret_types
+#         self.ret_types = [np.ndarray, Output_Array] + ret_types
+        self.ret_types = [cp.ndarray, Output_Array] + ret_types
 
 
     def _import_hash_and_add_terminals(self, operator, arg_types):
@@ -756,6 +761,7 @@ class TPOTBase(BaseEstimator):
                     if not isinstance(self._pbar, type(None)):
                         self._pbar.close()
 
+#                     import pdb; pdb.set_trace()
                     self._update_top_pipeline()
                     self._summary_of_best_pipeline(features, target)
                     # Delete the temporary cache before exiting
@@ -1153,7 +1159,8 @@ class TPOTBase(BaseEstimator):
         """
         # Check sample_weight
         if sample_weight is not None:
-            try: sample_weight = np.array(sample_weight).astype('float')
+#             try: sample_weight = np.array(sample_weight).astype('float')
+            try: sample_weight = cp.array(sample_weight).astype('float')
             except ValueError as e:
                 raise ValueError('sample_weight could not be converted to float array: %s' % e)
             if np.any(np.isnan(sample_weight)):
@@ -1175,7 +1182,8 @@ class TPOTBase(BaseEstimator):
                     'customized config dictionary supports sparse matriies.'
                 )
         else:
-            if isinstance(features, np.ndarray):
+#             if isinstance(features, np.ndarray):
+            if isinstance(features, cp.ndarray):
                 if np.any(np.isnan(features)):
                     self._imputed = True
             elif isinstance(features, DataFrame):

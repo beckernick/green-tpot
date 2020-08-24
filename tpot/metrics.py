@@ -23,6 +23,8 @@ License along with TPOT. If not, see <http://www.gnu.org/licenses/>.
 
 """
 
+import time
+
 import numpy as np
 from sklearn.metrics import make_scorer, SCORERS
 
@@ -46,6 +48,7 @@ def balanced_accuracy(y_true, y_pred):
         Returns a float value indicating the individual's balanced accuracy
         0.5 is as good as chance, and 1.0 is perfect predictive accuracy
     """
+    tick = time.time()
     all_classes = np.unique(np.append(y_true, y_pred))
     all_class_accuracies = []
     for this_class in all_classes:
@@ -66,7 +69,10 @@ def balanced_accuracy(y_true, y_pred):
         this_class_accuracy = (this_class_sensitivity + this_class_specificity) / 2.
         all_class_accuracies.append(this_class_accuracy)
 
-    return np.mean(all_class_accuracies)
+    res = np.mean(all_class_accuracies)
+    tock  = time.time()
+    print(f"balanced accuracy time: {tock-tick}s")
+    return res
 
 
 SCORERS['balanced_accuracy'] = make_scorer(balanced_accuracy)
